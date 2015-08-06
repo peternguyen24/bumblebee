@@ -21,6 +21,8 @@
 var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
+var bodyParser = require('body-parser');  // parse Json
+var tokenManager = require('tokenManager.js')
 
 // Common Middleware
 keystone.pre('routes', middleware.initLocals);
@@ -28,7 +30,8 @@ keystone.pre('render', middleware.flashMessages);
 
 // Import Route Controllers
 var routes = {
-	views: importRoutes('./views')
+	views: importRoutes('./views'),
+	api: importRoutes('./api')
 };
 
 // Setup Route Bindings
@@ -36,7 +39,14 @@ exports = module.exports = function(app) {
 	
 	// Views
 	app.get('/', routes.views.index);
-	app.all('/contact', routes.views.contact);
+	app.use(bodyParser.json()); // support json encoded bodies
+	app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
+	app.all('/api/getsub', tokenManager.checkClientToken);   // check token from client
+	app.all('/api/gettoken', tokenManager.checkServerPermission); // check token from server
+
+	app.post('/api/getsub', routes.api.getsub);              //getsub api
+	app.post('/api/gettoken', routes.api.gettoken);			 //gettoken api
 	
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);

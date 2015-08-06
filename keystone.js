@@ -58,5 +58,19 @@ keystone.set('nav', {
 });
 
 // Start Keystone to connect to your database and initialise the web server
+// Start Keystone to connect to your database and initialise the web server
+var initFunc = function(){
+		//var Sub = keystone.list('Sub');
+		//Sub.model.find().remove(function(err){});
+		var tokenManager = require('./routes/node_modules/tokenManager.js');
+		var update30mins = tokenManager.update30mins;
+		var update30mins30secs = tokenManager.update30mins30secs;
+		//var CronJob = require('cron').CronJob;
+		//new CronJob('*/7 * * * * *',function(){console.log(1)}, null, true, 'America/Los_Angeles');
+		//setTimeout(function() {new CronJob('*/7 * * * * *', function(){console.log(2)}, null, true, 'America/Los_Angeles');}, 3000);
+		update30mins();
+		setInterval(update30mins, 1800000);
+		setTimeout(function(){update30mins30secs(), setInterval(update30mins30secs, 1800000);}, 30000)
+}
 
-keystone.start();
+keystone.start(initFunc);
