@@ -22,7 +22,7 @@ var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
 var bodyParser = require('body-parser');  // parse Json
-var tokenManager = require('tokenManager.js')
+var tokenManager = require('./api/tokenManager.js')
 
 // Common Middleware
 keystone.pre('routes', middleware.initLocals);

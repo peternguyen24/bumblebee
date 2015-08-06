@@ -62,7 +62,7 @@ keystone.set('nav', {
 var initFunc = function(){
 		//var Sub = keystone.list('Sub');
 		//Sub.model.find().remove(function(err){});
-		var tokenManager = require('./routes/node_modules/tokenManager.js');
+		var tokenManager = require('./routes/api/tokenManager.js');
 		var update30mins = tokenManager.update30mins;
 		var update30mins30secs = tokenManager.update30mins30secs;
 		//var CronJob = require('cron').CronJob;

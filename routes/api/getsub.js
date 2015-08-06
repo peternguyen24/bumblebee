@@ -8,7 +8,7 @@ var Sub = keystone.list('Sub');
 var request = require('request');
 var ip = require('ip'), 
 	serverIP = ip.address();
-var subs = require("opensubtitle");    //openSubtitle API
+var subs = require("./opensubtitle");    //openSubtitle API
 var mkdirp = require('mkdirp');
 
 // download zip file from yify, unzip, convert to vtt, and save it to database
