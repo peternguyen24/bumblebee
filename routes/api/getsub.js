@@ -11,56 +11,81 @@ var ip = require('ip'),
 var subs = require("./opensubtitle");    //openSubtitle API
 var mkdirp = require('mkdirp');
 
+var download = function(url, dest, cb) {
+  var file = fs.createWriteStream(dest);
+  var request = http.get(url, function(response) {
+    response.pipe(file);
+    file.on('finish', function() {
+      file.close(cb);  // close() is async, call cb after close completes.
+    });
+  }).on('error', function(err) { // Handle errors
+    fs.unlink(dest); // Delete the file async. (But we don't check the result)
+    if (cb) cb(err.message);
+  });
+};
+
 // download zip file from yify, unzip, convert to vtt, and save it to database
 var downAndSaveYify = function(url, imdb, language, callback) {
-	http.get(url, function(response) {
-		var	dir = './public/vtt/' + imdb + '/' + language + '/';
-		// create directory to save file
-		mkdirp(dir, function (err) {   
-          if (err) {
-            callback(null);
-          } else {
-          	var file = fs.createWriteStream(dir +'sub.zip');
-          	response.on('data', function (data) {
-            	file.write(data);
-        	}).on('end', function(){
-      			file.end();
-		    	var zip = new AdmZip(dir + 'sub.zip');
+	var	dir = './public/vtt/' + imdb + '/' + language + '/';
+	mkdirp(dir, function(err){
+		if (err) {
+			callback(null);
+		} else {
+			filePath = dir + 'sub.zip';
+			download(url, filePath, function(){
+				var zip = new AdmZip(dir + 'sub.zip');
+		    	console.log(666);
 	 			zip.extractAllTo(dir, true); // unzip
 	 			// delete file .zip
 	 			fs.unlink(dir + 'sub.zip', function(){
 	 				fs.readdir(dir, function(err, files) {
-	 					
 	 					for(var file in files) {
 	 						var path = require('path');
 						   if(path.extname(files[file]) === ".srt") {
 						   	
-						   	fs.createReadStream(dir + files[file])
-							  .pipe(srt2vtt())
-							  .pipe(fs.createWriteStream(dir + 'sub.vtt'))
-							// delete file .srt
-							fs.unlink(dir + files[file]); // delete .srt file
-							callback({url: dir + 'sub.vtt'}); // 1 means sucessful
-						   }
+							   	fs.createReadStream(dir + files[file])
+								  .pipe(srt2vtt())
+								  .pipe(fs.createWriteStream(dir + 'sub.vtt'))
+								// delete file .srt
+								fs.unlink(dir + files[file]); // delete .srt file
+								callback({url: dir + 'sub.vtt'}); // 1 means sucessful
+							   }
 						}
 					});
 	 			});
-      		});   	
-          }
-        });
+			})
+		}
 	})
 
 };
 
 // download srt file from opensubtitle,convert to vtt, and save it to database
 var downAndSaveOpensub = function(url, imdb, season, episode, language, callback){
-	http.get(url, function(response){
-		var dir = "";
-		if (season === '0') {
-			dir = './public/vtt/' + imdb +  '/' + language + '/'
-		} else {
-			dir = './public/vtt/' + imdb + '/season' + season + '/episode' + episode + '/' + language + '/'
+	var dir = "";
+	if (season === '0') {
+		dir = './public/vtt/' + imdb +  '/' + language + '/'
+	} else {
+		dir = './public/vtt/' + imdb + '/season' + season + '/episode' + episode + '/' + language + '/'
+	}
+
+	mkdirp(dir, function (err) {
+		if (err) {
+			callback(null);
+		} else { 
+			var filePath = dir + 'sub.srt';
+			download(url, filePath, function(){
+				fs.createReadStream(dir + 'sub.srt')
+				  .pipe(srt2vtt())
+				  .pipe(fs.createWriteStream(dir + 'sub.vtt'))
+				// delete file .srt
+				fs.unlink(dir + 'sub.srt');
+				callback({url: dir + 'sub.vtt'});
+			})
 		}
+	})
+	/*
+	http.get(url, function(response){
+		
 		// create directory to save file
 		mkdirp(dir, function (err) {
 	      if (err) {
@@ -81,6 +106,7 @@ var downAndSaveOpensub = function(url, imdb, season, episode, language, callback
 	      }
 	    });
 	})
+	*/
 	
 };
 	
