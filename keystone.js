@@ -69,7 +69,7 @@ var initFunc = function(){
 		//new CronJob('*/7 * * * * *',function(){console.log(1)}, null, true, 'America/Los_Angeles');
 		//setTimeout(function() {new CronJob('*/7 * * * * *', function(){console.log(2)}, null, true, 'America/Los_Angeles');}, 3000);
 		update30mins();
-		setInterval(update30mins, 1800000);
+		setInterval(update30mins, 18000000);
 		setTimeout(function(){update30mins30secs(), setInterval(update30mins30secs, 1800000);}, 30000)
 }
 

@@ -34,7 +34,7 @@ var downAndSaveYify = function(url, imdb, language, callback) {
 			filePath = dir + 'sub.zip';
 			download(url, filePath, function(){
 				var zip = new AdmZip(dir + 'sub.zip');
-		    	console.log(666);
+		    	//console.log(666);
 	 			zip.extractAllTo(dir, true); // unzip
 	 			// delete file .zip
 	 			fs.unlink(dir + 'sub.zip', function(){
